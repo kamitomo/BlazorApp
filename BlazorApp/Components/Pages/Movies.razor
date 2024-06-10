@@ -1,0 +1,46 @@
+﻿@page "/movies"
+@attribute [StreamRendering]
+@using BlazorApp.Models
+@using BlazorApp.Services
+@using System.Diagnostics
+@inject IMovieService MovieService
+
+<h3>Movies</h3>
+
+@if (movies == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var movie in movies)
+        {
+            <li>@movie.Name</li>
+        }
+    </ul>
+}
+
+<button @onclick="AddMovie">追加</button>
+
+@code {
+    private Movie[]? movies;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Debug.WriteLine("Init");
+        await GetMovies();
+    }
+
+    private async Task GetMovies()
+    {
+        movies = await MovieService.GetMoviesAsync(false) ?? Array.Empty<Movie>();
+    }
+
+    private async Task AddMovie()
+    {
+        var addMovie = new Movie { Name = "movie name", IsWatched = false };
+        await MovieService.PostMovieAsync(addMovie);
+        await GetMovies();
+    }
+}
